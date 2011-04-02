@@ -1,0 +1,17 @@
+This is a plugin for CMSmadesimple.
+
+It extracts a booking list, such as for a holiday letting property, from a list
+stored in either a page or a global block. 
+
+In the source text, each entry has four, pipe-separated fields,
+arrival-date|departure-date|name|type.  The source data can be enclosed in <pre> 
+</pre> tags to avoid reformatting by accidental use of WYSIWYG editors. 
+
+The tag for inserting the calendar optionally can specify the number of months
+to display, and the number to skip forward or backward when using the "next"
+and "previous" links.
+
+Arrival and departure dates can be clearly identified using pure css
+
+Full instructions for use are given in admin/lang/en_US/calshow.inc.php (whose 
+contents need to be added to admin/lang/en_US/admin.inc.php).
