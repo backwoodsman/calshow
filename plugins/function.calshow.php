@@ -128,33 +128,34 @@ function smarty_cms_function_calshow($params, &$smarty) {
 	$bookingscount = count($bookings);
 	
 	for( $i = 0; $i < $bookingscount; $i++ ) {
-		list($arr, $dep, $name, $type) = explode("|", $bookings[$i]);
-		$type = preg_replace('/\<br *\/*\>/', '', $type);
-		$bookings[$i] = array( 'arr' => $arr, 'dep' => $dep, 'name' => $name, 'type' => $type );
-		$arrd =strtotime($arr)/$sperday;
-		$depd = strtotime($dep)/$sperday;
-		$arrdaysfrnow = ($arrd - $nowd);
-		$depdaysfrnow = ($depd - $nowd);
-		$durationdays = ($depd - $arrd);
-		# check for gross errors
-		if (( $durationdays > 365 ) || ( $durationdays < 0 )) {
-			$bookings[$i]['type'] = 'date-error';
-			$days[$arrd] .= "error";
-			$days[$depd] = "error";
-		}
-		elseif ( $depdaysfrnow < 0 ) {
-			$bookings[$i]['type'] = 'past';
-		}
-		else {
-			# add busy days to days array (note if already "out" "in" is concatenated to form "outin")
-			$days[$arrd] = "in";
-			for ( $j = $arrd+1; $j < $depd; $j++ ) {
-				$days[$j] = "busy";
+		$row = preg_replace("/ *<\/?pre> */", '', $bookings[$i]);
+		if (strpos($row, '|')) {
+			list($arr, $dep, $name, $type) = explode("|", $bookings[$i]);
+			$type = preg_replace('/\<br *\/*\>/', '', $type);
+			$bookings[$i] = array( 'arr' => $arr, 'dep' => $dep, 'name' => $name, 'type' => $type );
+			$arrd =strtotime($arr)/$sperday;
+			$depd = strtotime($dep)/$sperday;
+			$arrdaysfrnow = ($arrd - $nowd);
+			$depdaysfrnow = ($depd - $nowd);
+			$durationdays = ($depd - $arrd);
+			# check for gross errors
+			if (( $durationdays > 365 ) || ( $durationdays < 0 )) {
+				$bookings[$i]['type'] = 'date-error';
+				$days[$arrd] .= "error";
+				$days[$depd] = "error";
 			}
-		#	$days[$depd] = "out";
-			$depdays[$depd] = TRUE;
+			elseif ( $depdaysfrnow < 0 ) {
+				$bookings[$i]['type'] = 'past';
+			}
+			else {
+				# add busy days to days array (note if already "out" "in" is concatenated to form "outin")
+				$days[$arrd] = "in";
+				for ( $j = $arrd+1; $j < $depd; $j++ ) {
+					$days[$j] = "busy";
+				}
+				$depdays[$depd] = TRUE;
+			}
 		}
-
 	}
 		# start display with legend
 $display = "<div id=\"callegend\">\n<table class=\"calendar\"><tr><th>&nbsp;legend:&nbsp;</th><td class=\"weekday\"><b>&nbsp; available &nbsp;</b></td><td class=\"weekday\"><div class=\"busy\"><b>&nbsp; not available &nbsp;</b></div></td><td><span>&nbsp; darker tones show weekend rates &nbsp;</span></td></tr></table>\n</div>\n";
@@ -266,9 +267,10 @@ function smarty_cms_about_function_calshow()
 {
 ?>
   <p>Author:  richard Lyons &lt;richard@the-place.net&gt; </p>
-  <p>Version 0.1</p>
+  <p>Version 0.1.1</p>
   <p>Change History<br/>
-     0.1 - test version<br/>
+	0.1.1 - allow wrapping source in \<pre\> tags 
+	0.1 - test version<br/>
   </p>
 <?php
 }
