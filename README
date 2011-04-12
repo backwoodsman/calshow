@@ -1,17 +1,59 @@
 This is a plugin for CMSmadesimple.
 
-It extracts a booking list, such as for a holiday letting property, from a list
-stored in either a page or a global block. 
-
-In the source text, each entry has four, pipe-separated fields,
-arrival-date|departure-date|name|type.  The source data can be enclosed in <pre> 
-</pre> tags to avoid reformatting by accidental use of WYSIWYG editors. 
-
-The tag for inserting the calendar optionally can specify the number of months
-to display, and the number to skip forward or backward when using the "next"
-and "previous" links.
-
-Arrival and departure dates can be clearly identified using pure css
-
 Full instructions for use are given in admin/lang/en_US/calshow.inc.php (whose 
 contents need to be added to admin/lang/en_US/admin.inc.php).
+
+------------------
+What does this do?
+------------------
+Extracts a booking list, such as for a holiday letting property, from a
+list stored in either a page or a global block and displays it as monthly calendar blocks
+color-coded to show busy and free days.  Dates in the past are greyed out.  Weekend days 
+(which may be charged differently) are indicated in a different color.</p>
+
+----------------
+How do I use it?
+----------------
+There are two parts to using calshow: storing the data, and inserting a tag in the 
+place you wish it to be displayed.
+
+---storing the data
+
+Generate the table of data using any plain text editor (windows users: use wordpad rather 
+than a word processor). Each entry should have four, pipe-separated fields,
+        arrival-date|departure-date|name|type
+(an optional <br /> may be added after each line but this is dprecated: it is better 
+to enclose the whole list in &lt;pre&gt;&lt;/pre&gt; to protect it from wysiwyg editors).
+
+Decide whether to store it in a global content block or in a normal page.  
+If you use a page, this can be viewed by anybody so you will generally not want to include it in 
+the indexed namespace of your site.  Calshow will look by default for the page 'calendar'.  If you 
+put it in a global content block, it will only be visible via the admin interface, which is usually 
+better.
+
+Create the new page or global content block, turn off wysiwyg (if it is active) and paste the data table 
+into it. Add &quot;&lt;pre&gt;&quot; in a line at the top of the data, and  &quot;&lt;/pre&gt;&quot;
+in a line at the bottom &endash; this protects the table from reformatting by wysiwyg editors if it 
+is erroneously opened using one.  Save the block or page.
+ 
+---displaying the table</h4>
+
+On the page you want the calendar to show, insert
+    {calshow [show="n"] [skip="m"] [weekdays="w"] [block="bn"|page="pn"]}
+where: 
+     n - the number of months to view - default 12
+	 m - the number of months to skip forward and backward - default 6
+     w - the number of weekdays (as distinct from weekend days) - default 5
+    bn - the global content block name, or 
+	pn - the page alias
+
+Only one of 'block' or 'page' can be used: the default is page='calendar'.
+
+Formatting of the calendar is controlled by css.
+
+Some gross errors in the input data are checked for: "out" date earlier than "in" date or 
+excaptionally long booking period will mark the dates as css class="error".
+
+A sample table and code can be seen at http://co-ho.net/calendar-test.html.
+
+

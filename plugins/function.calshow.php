@@ -40,6 +40,11 @@ function smarty_cms_function_calshow($params, &$smarty) {
 	$days = array();
 	$depdays = array();
 
+	if (isset($params['weekdays'])) {
+		$wkdays = $params['weekdays'];
+	} else {
+		$wkdays = 5;
+	}
 	if (isset($params['block'])) {
 		# get content from a global content block:
 		$sourceblock = $params['block'];
@@ -130,48 +135,50 @@ function smarty_cms_function_calshow($params, &$smarty) {
 	for( $i = 0; $i < $bookingscount; $i++ ) {
 		$row = preg_replace("/ *<\/?pre> */", '', $bookings[$i]);
 		if (strpos($row, '|')) {
-			list($arr, $dep, $name, $type) = explode("|", $bookings[$i]);
-			$type = preg_replace('/\<br *\/*\>/', '', $type);
-			$bookings[$i] = array( 'arr' => $arr, 'dep' => $dep, 'name' => $name, 'type' => $type );
-			$arrd =strtotime($arr)/$sperday;
-			$depd = strtotime($dep)/$sperday;
-			$arrdaysfrnow = ($arrd - $nowd);
-			$depdaysfrnow = ($depd - $nowd);
-			$durationdays = ($depd - $arrd);
-			# check for gross errors
-			if (( $durationdays > 365 ) || ( $durationdays < 0 )) {
-				$bookings[$i]['type'] = 'date-error';
-				$days[$arrd] .= "error";
-				$days[$depd] = "error";
-			}
-			elseif ( $depdaysfrnow < 0 ) {
-				$bookings[$i]['type'] = 'past';
-			}
-			else {
-				# add busy days to days array (note if already "out" "in" is concatenated to form "outin")
-				$days[$arrd] = "in";
-				for ( $j = $arrd+1; $j < $depd; $j++ ) {
-					$days[$j] = "busy";
-				}
-				$depdays[$depd] = TRUE;
-			}
+		list($arr, $dep, $name, $type) = explode("|", $bookings[$i]);
+		$type = preg_replace('/\<br *\/*\>/', '', $type);
+		$bookings[$i] = array( 'arr' => $arr, 'dep' => $dep, 'name' => $name, 'type' => $type );
+		$arrd =strtotime($arr)/$sperday;
+		$depd = strtotime($dep)/$sperday;
+		$arrdaysfrnow = ($arrd - $nowd);
+		$depdaysfrnow = ($depd - $nowd);
+		$durationdays = ($depd - $arrd);
+		# check for gross errors
+		if (( $durationdays > 365 ) || ( $durationdays < 0 )) {
+			$bookings[$i]['type'] = 'date-error';
+			$days[$arrd] .= "error";
+			$days[$depd] = "error";
 		}
-	}
+		elseif ( $depdaysfrnow < 0 ) {
+			$bookings[$i]['type'] = 'past';
+		}
+		else {
+			# add busy days to days array (note if already "out" "in" is concatenated to form "outin")
+			$days[$arrd] = "in";
+			for ( $j = $arrd+1; $j < $depd; $j++ ) {
+				$days[$j] = "busy";
+			}
+		#	$days[$depd] = "out";
+			$depdays[$depd] = TRUE;
+		}
+
+	}}
 		# start display with legend
-$display = "<div id=\"callegend\">\n<table class=\"calendar\"><tr><th>&nbsp;legend:&nbsp;</th><td class=\"weekday\"><b>&nbsp; available &nbsp;</b></td><td class=\"weekday\"><div class=\"busy\"><b>&nbsp; not available &nbsp;</b></div></td><td><span>&nbsp; darker tones show weekend rates &nbsp;</span></td></tr></table>\n</div>\n";
+		for ($i=1; $i<5; $i++){
+			$legend[$i] = lang_by_realm("legend$i", 'calshow');
+		}
+$display = "<div id=\"callegend\">\n<table class=\"calendar\"><tr><th>&nbsp;".$legend[1].":&nbsp;</th><td class=\"weekday\"><b>&nbsp; ".$legend[2]." &nbsp;</b></td><td class=\"weekday\"><div class=\"busy\"><b>&nbsp; ".$legend[3]." &nbsp;</b></div></td><td><span>&nbsp; ".$legend[4]." &nbsp;</span></td></tr></table>\n</div>\n";
 	# set out the months in rows of three
 	for ($row = 0; $row < ceil($show/3); $row++) {
 		$display .= "<div class=\"calcontainer\">\n";
 		for ($col = 0; $col < 3; $col++) {
 			$showyear = $curyear;
 			$showmonth = $curmonth + $col + (3*$row);
-# 			echo "baseyear $baseyear, now month is $showmonth >> ";
 			if ( $showmonth > 12 ) {
 				$showyear = $baseyear + floor(($showmonth-1)/12);
 				$showmonth = bcmod(($showmonth-1), 12) +1;
 			}
-# 			echo "trying $showyear -- $showmonth -- and same old daysarray.<br />\n";
-			$display .= make_display($showyear, $showmonth, $days, $depdays);
+			$display .= make_display($showyear, $showmonth, $days, $depdays, $wkdays);
 		}
 		$display .= "</div>\n";
 	}
@@ -187,11 +194,17 @@ $display = "<div id=\"callegend\">\n<table class=\"calendar\"><tr><th>&nbsp;lege
 }
 
 
-function make_display($ayear, $amonth, $dayarray, $depdays) {
+function make_display($ayear, $amonth, $dayarray, $depdays, $wkdays) {
 	$sperday = 86400;
 	$nowd = (strtotime(date('Y-m-d')))/$sperday;
-	$months = array('0', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december');
-	$daynames = array('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun');
+#	$months = array('0', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december');
+	for ($i=1; $i<13; $i++) {
+		$months[$i] = lang_by_realm("month$i",'calshow');
+	}
+	#	$daynames = array('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun');
+	for ($i=1; $i<8; $i++) {
+		$daynames[$i] = lang_by_realm("day_short$i",'calshow');
+	}
 	# start output of calendar
 	$text = "<div class=\"calblock\">\n    <table class=\"calendar\">\n        <caption class=\"calendar-month\">$months[$amonth] $ayear</caption>\n";
 	$text .= "    <tbody><tr>\n";
@@ -223,7 +236,7 @@ function make_display($ayear, $amonth, $dayarray, $depdays) {
 	}
 	$text .= "$cspan";
 	for ($d = 1; $d <= $lastdayofmonth; $d++ ) {
-		if ($weekdayno > 4) { 
+		if ($weekdayno > $wkdays ) { 
 			$dayclass = "weekend";
 		} else {
 			$dayclass = "weekday";
@@ -267,10 +280,9 @@ function smarty_cms_about_function_calshow()
 {
 ?>
   <p>Author:  richard Lyons &lt;richard@the-place.net&gt; </p>
-  <p>Version 0.1.1</p>
+  <p>Version 0.1</p>
   <p>Change History<br/>
-	0.1.1 - allow wrapping source in \<pre\> tags 
-	0.1 - test version<br/>
+     0.1 - test version<br/>
   </p>
 <?php
 }
