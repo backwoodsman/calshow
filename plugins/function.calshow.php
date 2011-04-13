@@ -241,7 +241,7 @@ function make_display($ayear, $amonth, $dayarray, $depdays, $wkdays) {
 		} else {
 			$dayclass = "weekday";
 		}
-		$text .= "<td class = \"$dayclass\">";
+		$text .= "<td class=\"$dayclass\">";
 		if( ($datumd+$d) < $nowd ) {
 			$text .= "<div class=\"past\">$d</div>";
 		} elseif ( isset($dayarray[$datumd+$d]) || ($depdays[$datumd+$d]) ) {
