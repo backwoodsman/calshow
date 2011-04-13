@@ -1,0 +1,58 @@
+There is no doubt an "official" way to install "approved" plugins, but I 
+think this requires official recognition of the plugin project, and I am
+unsure how that is achieved.
+
+Unofficially this should work:
+
+--------------------------------
+AS A PLUGIN
+    copy 
+        plugins/function.calshow.php
+	    lib/lang/calshow/en_US.php
+	    lib/lang/calshow/ext/*
+	to the corresponding places
+
+    Also append the contents of	   
+	    admin/lang/en_US/calshow.inc.php 
+	to admin/lang/en_US/admin.inc.php
+    
+	as well as any translations in
+	    admin/lang/ext/
+
+These help function files will be overwritten at any upgrade, so an 
+alternative strategy is to append them to 
+        admin/lang/en_US/local.inc.php
+and then simply add 'include "local.inc.php";' at the end of admin.inc.php
+(but before the closing '?>' ) after any upgrade.
+
+--------------------------------
+AS A UDT
+The other way is to install the plugin as a User Defined Tag.  To do this,
+strip the <?php ?> tags from the function.calshow.php file and paste it into 
+your UDT.  It will be cecessary to insert the definitions from lib/lang/calshow/
+and modify the two calls to lang_by_realm(), as described below.  You can 
+abandon the help functions from the admin/lang/...inc files or paste them in too.  
+
+To remove dependency on lang_by_realm(), find the code:
+
+	for ($i=1; $i<13; $i++) {
+		$months[$i] = lang_by_realm("month$i",'calshow');
+	}
+
+delete these three lines and insert this in their place:
+
+	$months = array('0', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december');
+
+Then do the same, replacing this segment
+
+    for ($i=1; $i<8; $i++) {
+		$daynames[$i] = lang_by_realm("day_short$i",'calshow');
+	}
+
+with this line:
+
+	$daynames = array('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun');
+
+The UDT method is untested, but should work I think.
+
+
