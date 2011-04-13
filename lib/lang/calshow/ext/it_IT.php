@@ -18,8 +18,8 @@ $lang['month9'] = 'settembre';
 $lang['month10'] = 'ottobre';
 $lang['month11'] = 'novembre';
 $lang['month12'] = 'dicembre';
-$lang['legend1'] = 'legend';
-$lang['legend2'] = 'available';
-$lang['legend3'] = 'not available';
-$lang['legend4'] = 'stronger tones show weekend rates';
+$lang['legend1'] = 'indicazioni';
+$lang['legend2'] = 'disponibile';
+$lang['legend3'] = 'occupato';
+$lang['legend4'] = 'colori forti indicano tariffa weekend';
 ?>
