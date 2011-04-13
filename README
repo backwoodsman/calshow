@@ -23,7 +23,7 @@ Generate the table of data using any plain text editor (windows users: use wordp
 than a word processor). Each entry should have four, pipe-separated fields,
         arrival-date|departure-date|name|type
 (an optional <br /> may be added after each line but this is dprecated: it is better 
-to enclose the whole list in &lt;pre&gt;&lt;/pre&gt; to protect it from wysiwyg editors).
+to enclose the whole list in <pre></pre> to protect it from wysiwyg editors).
 
 Decide whether to store it in a global content block or in a normal page.  
 If you use a page, this can be viewed by anybody so you will generally not want to include it in 
@@ -36,7 +36,7 @@ into it. Add &quot;&lt;pre&gt;&quot; in a line at the top of the data, and  &quo
 in a line at the bottom &endash; this protects the table from reformatting by wysiwyg editors if it 
 is erroneously opened using one.  Save the block or page.
  
----displaying the table</h4>
+---displaying the table
 
 On the page you want the calendar to show, insert
     {calshow [show="n"] [skip="m"] [weekdays="w"] [block="bn"|page="pn"]}
@@ -54,6 +54,6 @@ Formatting of the calendar is controlled by css.
 Some gross errors in the input data are checked for: "out" date earlier than "in" date or 
 excaptionally long booking period will mark the dates as css class="error".
 
-A sample table and code can be seen at http://co-ho.net/calendar-test.html.
+See the wiki for more details.
 
 
